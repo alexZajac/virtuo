@@ -158,14 +158,6 @@ const actors = [{
 }];
 
 // STEP: 1
-const computeRentalPrice = () => {
-  rentals.forEach(r => {
-    const { carId, pickupDate, returnDate } = r;
-    const timeComponent = getTimeComponent(carId, pickupDate, returnDate);
-    const distanceComponent = getDistanceComponent(r)
-    r.price = timeComponent + distanceComponent;
-  })
-}
 
 // gets time component from rental object
 const getTimeComponent = (carId, pickupDate, returnDate) => {
@@ -190,12 +182,21 @@ const numberofDays = (pickupDate, returnDate) => {
 // return distance from rental object if definded
 const getDistanceComponent = rental => rental.distance !== undefined ? rental.distance : 0;
 
-computeRentalPrice();
+const computeRentalPrice = () => (
+  rentals.map(r => {
+    const { carId, pickupDate, returnDate } = r;
+    const timeComponent = getTimeComponent(carId, pickupDate, returnDate);
+    const distanceComponent = getDistanceComponent(r)
+    return { ...r, price: timeComponent + distanceComponent }
+  })
+)
+console.log("RENTAL PRICE STEP 1: ", computeRentalPrice())
 
 
 // STEP 2
 const updateRentalprice = () => {
-  rentals.forEach(r => {
+  const computedPrices = computeRentalPrice();
+  return computedPrices.map(r => {
     let { price, pickupDate, returnDate } = r;
     const diffDays = numberofDays(pickupDate, returnDate);
     if(diffDays > 1 && diffDays <= 4)
@@ -204,36 +205,50 @@ const updateRentalprice = () => {
         price *= 0.7
     else  
         price *= 0.5
-    r.price = price;
+    return { ...r, price }
   })
 }
-updateRentalprice();
+console.log("RENTAL PRICE STEP 2: ", updateRentalprice())
 
 
 // STEP 3
 const updatePriceWithCommission = () => {
-  rentals.forEach(r => {
+  const updatedPrices = updateRentalprice()
+  return updatedPrices.map(r => {
     let { price, pickupDate, returnDate } = r;
     const diffDays = numberofDays(pickupDate, returnDate);
     let commissionTotal = 0.3 * price;
     const insurance = commissionTotal/2;
     const treasury = diffDays;
     const virtuo = commissionTotal/2 - diffDays
-    const commision = {
+    const commission = {
       "insurance": insurance,
       "treasury": treasury,
       "virtuo": virtuo
     }
-    r.commission = commision;
+    return { ...r, commission }
   })
 }
-updatePriceWithCommission();
+console.log("RENTAL PRICE STEP 3: ", updatePriceWithCommission())
 
 
-
-console.log(cars);
-console.log(rentals);
-console.log(actors);
+// STEP 4:
+const updatePriceWithDeductible = () => {
+  const updatedPrices = updatePriceWithCommission();
+  return updatedPrices.map(r => {
+    let { price, options, returnDate, pickupDate, commission } = r;
+    const { deductibleReduction } = options;
+    // add 4 euro per day for each rental day if deductible
+    if(deductibleReduction){
+        const diffDays = numberofDays(pickupDate, returnDate);
+        const to_add = (diffDays * 4)
+        price += to_add
+        commission.virtuo += to_add;
+    }
+    return { ...r, price, commission }
+  })
+}
+console.log("RENTAL PRICE STEP 4: ", updatePriceWithDeductible())
 
 
 

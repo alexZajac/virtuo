@@ -193,7 +193,21 @@ const getDistanceComponent = rental => rental.distance !== undefined ? rental.di
 computeRentalPrice();
 
 
-
+// STEP 2
+const updateRentalprice = () => {
+  rentals.forEach(r => {
+    let { price, pickupDate, returnDate } = r;
+    const diffDays = numberofDays(pickupDate, returnDate);
+    if(diffDays > 1 && diffDays <= 4)
+        price *= 0.9
+    else if(diffDays > 4 && diffDays <= 10)
+        price *= 0.7
+    else  
+        price *= 0.5
+    r.price = price;
+  })
+}
+updateRentalprice();
 
 
 

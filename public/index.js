@@ -184,7 +184,7 @@ const getTimeComponent = (carId, pickupDate, returnDate) => {
 const numberofDays = (pickupDate, returnDate) => {
   const date1 = new Date(pickupDate);
   const date2 = new Date(returnDate);
-  return parseInt((date2 - date1) / (1000 * 60 * 60 * 24), 10); 
+  return parseInt((date2 - date1) / (1000 * 60 * 60 * 24), 10) + 1; 
 }
 
 // return distance from rental object if definded
@@ -210,8 +210,26 @@ const updateRentalprice = () => {
 updateRentalprice();
 
 
-
 // STEP 3
+const updatePriceWithCommission = () => {
+  rentals.forEach(r => {
+    let { price, pickupDate, returnDate } = r;
+    const diffDays = numberofDays(pickupDate, returnDate);
+    let commissionTotal = 0.3 * price;
+    const insurance = commissionTotal/2;
+    const treasury = diffDays;
+    const virtuo = commissionTotal/2 - diffDays
+    const commision = {
+      "insurance": insurance,
+      "treasury": treasury,
+      "virtuo": virtuo
+    }
+    r.commission = commision;
+  })
+}
+updatePriceWithCommission();
+
+
 
 console.log(cars);
 console.log(rentals);

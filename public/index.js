@@ -157,6 +157,51 @@ const actors = [{
   }]
 }];
 
+// STEP: 1
+const computeRentalPrice = () => {
+  rentals.forEach(r => {
+    const { carId, pickupDate, returnDate } = r;
+    const timeComponent = getTimeComponent(carId, pickupDate, returnDate);
+    const distanceComponent = getDistanceComponent(r)
+    r.price = timeComponent + distanceComponent;
+  })
+}
+
+// gets time component from rental object
+const getTimeComponent = (carId, pickupDate, returnDate) => {
+  let pricePerDay = 0;
+  cars.forEach(c => {
+    if(c.id === carId){
+      pricePerDay = c.pricePerDay
+      return
+    }
+  })
+  // getting the number of days rent
+  const diffDays = numberofDays(pickupDate, returnDate);
+  return pricePerDay * diffDays;
+}
+
+const numberofDays = (pickupDate, returnDate) => {
+  const date1 = new Date(pickupDate);
+  const date2 = new Date(returnDate);
+  return parseInt((date2 - date1) / (1000 * 60 * 60 * 24), 10); 
+}
+
+// return distance from rental object if definded
+const getDistanceComponent = rental => rental.distance !== undefined ? rental.distance : 0;
+
+computeRentalPrice();
+
+
+
+
+
+
+// STEP 3
+
 console.log(cars);
 console.log(rentals);
 console.log(actors);
+
+
+

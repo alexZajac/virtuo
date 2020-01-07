@@ -250,5 +250,32 @@ const updatePriceWithDeductible = () => {
 }
 console.log("RENTAL PRICE STEP 4: ", updatePriceWithDeductible())
 
+// STEP 5:
+const computeActorsFlows = () => {
+  const updatedPrices = updatePriceWithDeductible();
+  return actors.map(a => {
+    const { payment } = a;
+    const newPayments = payment.map(p => {
+        const rental = updatedPrices.filter(r => r.id == a.rentalId);
+        const { price, commission } = rental[0];
+        const { who } = p;
+        let amount;
+        if(who === "driver")
+            amount = price;
+        else if(who === "partner")
+            amount = 0.7*price;
+        else if(who === "insurance")
+            amount = commission.insurance
+        else if(who === "treasury")
+            amount = commission.treasury
+        else
+            amount = commission.virtuo
+        return { ...p, amount }
+    })
+    return { ...a, payment: newPayments }
+  })
+}
+console.log("RENTAL PRICE STEP 5: ", computeActorsFlows())
+
 
 
